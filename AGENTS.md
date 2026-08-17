@@ -1,9 +1,23 @@
-<!-- BEGIN:nextjs-agent-rules -->
+# AMBAR — Project Rules
 
-# This is NOT the Next.js you know
+## Product
+AMBAR is a calm, living personal archive with product price tracking and future agent access. It is personal-first and public-ready, but v0 is an interactive local-data prototype.
 
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+## Commands
+- `npm run dev`
+- `npm test`
+- `npm run lint`
+- `npm run build`
 
-This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+## Safety and scope
+- Do not add generative AI, embeddings, semantic search, authentication, scraping, social OAuth, payments, or production data in v0.
+- Do not commit, push, deploy, publish, or spend credits without Kaan's explicit approval.
+- Never use real credentials or private bookmark exports in fixtures.
+- External HTML is untrusted and must never execute on the app origin.
 
-<!-- END:nextjs-agent-rules -->
+## Engineering
+- Strict RED → GREEN → REFACTOR for behavioral work.
+- One writer per file/module at a time; independent reviewer must inspect the final diff.
+- TypeScript strict; accessible semantic HTML; keyboard support; reduced-motion support.
+- beUI is used selectively as owned source, not as a visual identity or closed dependency.
+- Completion requires tests, lint, production build, and browser QA at 1440, 834, and 390 widths.
