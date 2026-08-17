@@ -142,6 +142,8 @@ export function createQuickSaveItem(
   return item;
 }
 
+export const MAX_TARGET_PRICE_CENTS = 100_000_000;
+
 export function formatTargetInput(cents?: number) {
   return cents === undefined ? "" : (cents / 100).toFixed(2);
 }
@@ -152,7 +154,11 @@ export function parseTargetInput(value: string) {
   if (!/^\d+(?:\.\d{1,2})?$/.test(normalized)) {
     throw new Error("Enter a valid target price");
   }
-  return Math.round(Number(normalized) * 100);
+  const cents = Math.round(Number(normalized) * 100);
+  if (!Number.isSafeInteger(cents) || cents > MAX_TARGET_PRICE_CENTS) {
+    throw new Error("Target price is too large");
+  }
+  return cents;
 }
 
 export function updateProductTarget(
@@ -163,8 +169,12 @@ export function updateProductTarget(
 ): ArchiveItem[] {
   if (
     targetPriceCents !== undefined &&
-    (!Number.isInteger(targetPriceCents) || targetPriceCents < 0)
+    (!Number.isSafeInteger(targetPriceCents) ||
+      targetPriceCents > MAX_TARGET_PRICE_CENTS)
   ) {
+    throw new Error("Target price is too large");
+  }
+  if (targetPriceCents !== undefined && targetPriceCents < 0) {
     throw new Error("Target price must be a positive cent amount");
   }
 
@@ -175,7 +185,7 @@ export function updateProductTarget(
       product: {
         ...item.product,
         targetPriceCents,
-        alertEnabled,
+        alertEnabled: targetPriceCents !== undefined && alertEnabled,
       },
     };
   });

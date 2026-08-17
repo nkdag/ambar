@@ -116,6 +116,12 @@ describe("target price input", () => {
     expect(() => parseTargetInput("12 dollars")).toThrow("Enter a valid target price");
     expect(() => parseTargetInput("-1")).toThrow("Enter a valid target price");
   });
+
+  it("rejects oversized values before they can reach React state", () => {
+    expect(() => parseTargetInput("9".repeat(400))).toThrow(
+      "Target price is too large",
+    );
+  });
 });
 
 describe("updateProductTarget", () => {
@@ -134,5 +140,19 @@ describe("updateProductTarget", () => {
   it("leaves unrelated items referentially stable", () => {
     const next = updateProductTarget(items, "item-2", 12000, true);
     expect(next[0]).toBe(items[0]);
+  });
+
+  it("rejects unsafe cent values at the domain boundary", () => {
+    expect(() => updateProductTarget(items, "item-2", Infinity, true)).toThrow(
+      "Target price is too large",
+    );
+  });
+
+  it("disables the alert when its target is cleared", () => {
+    const next = updateProductTarget(items, "item-2", undefined, true);
+    expect(next[1].product).toMatchObject({
+      targetPriceCents: undefined,
+      alertEnabled: false,
+    });
   });
 });

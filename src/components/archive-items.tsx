@@ -97,6 +97,21 @@ function MetaLine({ item }: { item: ArchiveItem }) {
   );
 }
 
+function itemAccessibleLabel(item: ArchiveItem) {
+  const parts = [`Open ${item.title}`, item.type, item.site, item.collection];
+  if (item.product) {
+    const delta = priceDeltaPercent(item.product);
+    parts.push(`current price ${formatPrice(item.product.currentPriceCents)}`);
+    if (delta !== undefined) {
+      const direction = delta < 0 ? "down" : delta > 0 ? "up" : "unchanged";
+      parts.push(`${direction} ${Math.abs(delta).toFixed(0)} percent`);
+    }
+  } else if (item.type === "article") {
+    parts.push(`${item.readProgress ?? 0} percent read`);
+  }
+  return parts.join(", ");
+}
+
 function OpenItemButton({
   item,
   onOpen,
@@ -113,7 +128,7 @@ function OpenItemButton({
       type="button"
       className={className}
       onClick={() => onOpen(item)}
-      aria-label={`Open ${item.title}`}
+      aria-label={itemAccessibleLabel(item)}
     >
       {children}
     </button>
@@ -254,7 +269,16 @@ export function ArchiveItems({
 }: ArchiveItemsProps & { view: ViewMode }) {
   if (view === "card") return <CardView items={items} onOpen={onOpen} />;
   if (view === "gallery") return <GalleryView items={items} onOpen={onOpen} />;
-  if (view === "table") return <TableView items={items} onOpen={onOpen} />;
+  if (view === "table") {
+    return (
+      <>
+        <TableView items={items} onOpen={onOpen} />
+        <div className="mobile-table-fallback">
+          <ListView items={items} onOpen={onOpen} />
+        </div>
+      </>
+    );
+  }
   return <ListView items={items} onOpen={onOpen} />;
 }
 

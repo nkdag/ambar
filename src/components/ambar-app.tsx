@@ -165,7 +165,7 @@ function Sidebar({
       <button type="button" className="quick-save-button" onClick={onSave}>
         <Plus aria-hidden />
         Quick save
-        <kbd>S</kbd>
+        <kbd>⌥S</kbd>
       </button>
 
       <nav className="primary-nav" aria-label="Archive sections">
@@ -369,7 +369,7 @@ function ArchiveHeader({
         </div>
         <label className="state-select">
           <SlidersHorizontal aria-hidden />
-          <span className="sr-only">Preview state</span>
+          <span className="state-select-label">State preview</span>
           <select
             value={previewState}
             onChange={(event) => onPreviewStateChange(event.target.value as PreviewState)}
@@ -833,7 +833,7 @@ export function AmbarApp() {
         event.key.toLowerCase() === "s" &&
         !event.metaKey &&
         !event.ctrlKey &&
-        !event.altKey &&
+        event.altKey &&
         !(event.target instanceof HTMLInputElement) &&
         !(event.target instanceof HTMLTextAreaElement) &&
         !(event.target instanceof HTMLSelectElement)
@@ -876,8 +876,15 @@ export function AmbarApp() {
     });
   };
 
+  const overlayOpen = modal !== null || selectedItem !== null;
+
   return (
     <div className="app-shell">
+      <div
+        className="app-underlay"
+        inert={overlayOpen ? true : undefined}
+        aria-hidden={overlayOpen ? true : undefined}
+      >
       <Sidebar
         section={section}
         onSectionChange={(value) => { setSection(value); setPreviewState("ready"); }}
@@ -908,7 +915,7 @@ export function AmbarApp() {
                 onPreviewStateChange={setPreviewState}
               />
               {previewState === "offline" ? (
-                <div className="offline-banner" role="status"><WifiOff aria-hidden /><span><strong>Offline preview</strong>Showing the last four locally cached items.</span><button type="button" onClick={() => setPreviewState("ready")}>Go online</button></div>
+                <div className="offline-banner" role="status"><WifiOff aria-hidden /><span><strong>Offline preview</strong>Showing the last four locally cached items.</span><button type="button" onClick={() => setPreviewState("ready")}>Exit preview</button></div>
               ) : null}
               {previewState === "loading" ? <LoadingState /> : null}
               {previewState === "empty" ? <EmptyState onSave={() => setModal("save")} /> : null}
@@ -923,6 +930,7 @@ export function AmbarApp() {
       </div>
 
       <MobileNav section={section} onSectionChange={(value) => { setSection(value); setPreviewState("ready"); }} onSave={() => setModal("save")} />
+      </div>
       <SearchDialog open={modal === "search"} onClose={closeModal} items={items} onOpenItem={openItem} />
       <QuickSaveDialog open={modal === "save"} onClose={closeModal} onSave={saveItem} />
       <ImportDialog open={modal === "import"} onClose={closeModal} />
