@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 import {
   createQuickSaveItem,
   filterArchiveItems,
+  findDuplicateItem,
   formatTargetInput,
+  normalizeArchiveUrl,
   parseTargetInput,
   updateProductTarget,
   type ArchiveItem,
@@ -46,6 +48,7 @@ const items: ArchiveItem[] = [
 describe("filterArchiveItems", () => {
   it.each([
     ["field note", "item-1"],
+    ["lithub.com/field-note", "item-1"],
     ["Literary Hub", "item-1"],
     ["studio", "item-2"],
     ["Workshop shelf", "item-2"],
@@ -102,6 +105,27 @@ describe("createQuickSaveItem", () => {
         { id: "unsafe", now: new Date("2026-08-17T16:00:00.000Z") },
       ),
     ).toThrow("Enter a valid http or https URL");
+  });
+});
+
+describe("archive URL identity", () => {
+  it("normalizes tracking parameters, fragments, default ports, and trailing slashes", () => {
+    expect(
+      normalizeArchiveUrl("HTTPS://WWW.Example.com:443/story/?utm_source=newsletter&b=2&a=1#notes"),
+    ).toBe("https://www.example.com/story?a=1&b=2");
+  });
+
+  it("finds an existing item by normalized URL", () => {
+    const existing = {
+      ...items[0],
+      url: "https://example.com/story?a=1&b=2",
+    };
+    expect(
+      findDuplicateItem(
+        [existing],
+        "https://example.com/story/?b=2&utm_medium=email&a=1#section",
+      )?.id,
+    ).toBe(existing.id);
   });
 });
 

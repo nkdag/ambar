@@ -22,7 +22,9 @@ export const metadata: Metadata = {
   description: "A calm local prototype for links, reading, and product prices.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({
+  children,
+}: Readonly<{ children: React.ReactNode }>) {
   return (
     <html
       lang="en"

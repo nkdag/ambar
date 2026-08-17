@@ -10,8 +10,9 @@ AMBAR is a calm, living personal archive with product price tracking and future 
 - `npm run build`
 
 ## Safety and scope
-- Do not add generative AI, embeddings, semantic search, authentication, scraping, social OAuth, payments, or production data in v0.
-- Do not commit, push, deploy, publish, or spend credits without Kaan's explicit approval.
+- Current approved slice is honest single-device Local Vault persistence. Real authentication/cloud sync may be designed, but must not be represented as working until a real backend, RLS, export, and deletion path exist.
+- Do not add generative AI, embeddings, semantic search, scraping, social OAuth, payments, or production data in this slice.
+- Do not commit, push, deploy, publish, create paid cloud resources, or spend credits without Kaan's explicit approval.
 - Never use real credentials or private bookmark exports in fixtures.
 - External HTML is untrusted and must never execute on the app origin.
 

@@ -20,8 +20,11 @@ Use owned beUI source selectively for command palette, morphing quick-save modal
 ## Motion
 120ms micro, 220ms transition, 320ms panel. No stagger spectacle. `prefers-reduced-motion` removes transforms and nonessential transitions.
 
+## Local Vault affordance
+Persistence should feel like a quiet archive fact, not a cloud dashboard: use concise copy such as “Saved on this device” and a restrained status mark. Recovery or storage errors must be explicit, human-readable, and actionable without modal panic. Prototype state controls belong in a secondary demo disclosure, not the primary archive toolbar.
+
 ## Accessibility
-Visible 2px amber focus with offset; semantic landmarks/lists/tables; keyboard-complete primary loop; 44px touch targets on mobile; WCAG AA contrast; icon buttons have names; charts include textual values.
+Visible 2px amber focus with offset; semantic landmarks/lists/tables; keyboard-complete primary loop; 44px touch targets on mobile and tablet; WCAG AA contrast; icon buttons have names; charts include textual values.
 
 ## Forbidden
 Purple/blue SaaS gradients, glassmorphism, neon, stock illustration, decorative dashboard charts, fake AI affordances, copying a single beUI demo composition.

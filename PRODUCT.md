@@ -15,13 +15,15 @@ A person who saves across browsers and social platforms, loses track of products
 4. Return through fast search and purpose views.
 5. For products, set a target and revisit when the price changes.
 
-## v0 outcome
-A polished responsive interactive prototype proving navigation, search, views, quick save, item detail, price tracking interactions, state handling, and the visual identity with realistic local demo data.
+## Current outcome — Local Vault tracer bullet
+AMBAR is moving from an interactive prototype to an honest single-device product. An empty browser sees a clearly labelled example vault that is never written as personal data. The first personal save creates a user-only, versioned local vault; later quick saves and product targets persist across reloads. Duplicate normalized URLs are refused. Corrupt or unsupported local data fails closed into a recoverable state instead of crashing or silently discarding records.
 
-## Non-goals
+The next cloud slice may add real Supabase identity and cross-device sync, but only with a real backend, workspace ownership, RLS, export, and account deletion. AMBAR never presents a decorative login screen as working authentication.
+
+## Non-goals for this slice
 - Generative AI, embeddings, semantic search
-- Real account/backend, social OAuth, scraping, or notifications
-- Public sharing, collaboration, billing
+- Fake account/backend, social OAuth, scraping, or notifications
+- Cross-device sync, public sharing, collaboration, billing
 - Browser extension or native mobile app
 - Fake MCP functionality; only an honest future-access surface
 

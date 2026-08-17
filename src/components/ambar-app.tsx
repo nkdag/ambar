@@ -42,6 +42,7 @@ import {
   useState,
   type ChangeEvent,
   type FormEvent,
+  type KeyboardEvent as ReactKeyboardEvent,
 } from "react";
 import {
   ArchiveItems,
@@ -61,6 +62,7 @@ import { archiveFixtures, collectionNames, demoChromeExport } from "@/data/fixtu
 import {
   createQuickSaveItem,
   filterArchiveItems,
+  findDuplicateItem,
   formatPrice,
   formatTargetInput,
   parseTargetInput,
@@ -74,11 +76,17 @@ import {
   parseChromeBookmarks,
   type ChromeBookmarkPreview,
 } from "@/domain/bookmarks";
+import {
+  AMBAR_VAULT_KEY,
+  mutateVault,
+  readVault,
+} from "@/domain/vault";
 
 type AppSection = ArchiveSection | "access";
 type PreviewState = "ready" | "loading" | "empty" | "error" | "offline";
 type ModalName = "search" | "save" | "import" | null;
 type SearchScope = "all" | "products" | "reading";
+type VaultStatus = "booting" | "example" | "saved" | "recovery" | "write-error";
 
 const sectionCopy: Record<
   ArchiveSection,
@@ -149,12 +157,16 @@ function Sidebar({
   onSave,
   onImport,
   items,
+  vaultStatus,
+  saveDisabled,
 }: {
   section: AppSection;
   onSectionChange: (section: AppSection) => void;
   onSave: () => void;
   onImport: () => void;
   items: ArchiveItem[];
+  vaultStatus: VaultStatus;
+  saveDisabled: boolean;
 }) {
   const productCount = items.filter((item) => item.type === "product").length;
   const readingCount = items.filter((item) => item.type === "article").length;
@@ -162,7 +174,7 @@ function Sidebar({
   return (
     <aside className="sidebar" aria-label="Library navigation">
       <Logo />
-      <button type="button" className="quick-save-button" onClick={onSave}>
+      <button type="button" className="quick-save-button" onClick={onSave} disabled={saveDisabled}>
         <Plus aria-hidden />
         Quick save
         <kbd>⌥S</kbd>
@@ -214,7 +226,18 @@ function Sidebar({
           Agent Access
           <span>Next</span>
         </button>
-        <p><span className="local-dot" /> Local demo · no account</p>
+        <p className={`vault-status vault-status-${vaultStatus}`} role="status">
+          <span className="local-dot" />
+          {vaultStatus === "booting"
+            ? "Opening local vault"
+            : vaultStatus === "example"
+              ? "Example vault · not saved"
+              : vaultStatus === "saved"
+                ? "Saved on this device"
+                : vaultStatus === "recovery"
+                  ? "Local vault needs recovery"
+                  : "Local changes are not saved"}
+        </p>
       </div>
     </aside>
   );
@@ -227,6 +250,7 @@ function Header({
   onThemeToggle,
   section,
   onSectionChange,
+  saveDisabled,
 }: {
   onSearch: () => void;
   onSave: () => void;
@@ -234,6 +258,7 @@ function Header({
   onThemeToggle: () => void;
   section: AppSection;
   onSectionChange: (section: AppSection) => void;
+  saveDisabled: boolean;
 }) {
   return (
     <header className="topbar">
@@ -251,7 +276,7 @@ function Header({
         ))}
       </nav>
       <div className="topbar-actions">
-        <button type="button" className="search-trigger" onClick={onSearch}>
+        <button type="button" className="search-trigger" onClick={onSearch} aria-label="Search the archive">
           <Search aria-hidden />
           <span>Search the archive</span>
           <kbd><Command aria-hidden />K</kbd>
@@ -264,7 +289,7 @@ function Header({
         >
           {theme === "light" ? <Moon aria-hidden /> : <Sun aria-hidden />}
         </button>
-        <button type="button" className="header-save" onClick={onSave}>
+        <button type="button" className="header-save" onClick={onSave} aria-label="Save" disabled={saveDisabled}>
           <Plus aria-hidden />
           <span>Save</span>
         </button>
@@ -277,10 +302,12 @@ function MobileNav({
   section,
   onSectionChange,
   onSave,
+  saveDisabled,
 }: {
   section: AppSection;
   onSectionChange: (section: AppSection) => void;
   onSave: () => void;
+  saveDisabled: boolean;
 }) {
   const items: Array<{ value: AppSection; label: string }> = [
     { value: "inbox", label: "Inbox" },
@@ -301,7 +328,7 @@ function MobileNav({
           {item.label}
         </button>
       ))}
-      <button type="button" className="mobile-save" onClick={onSave} aria-label="Quick save">
+      <button type="button" className="mobile-save" onClick={onSave} aria-label="Quick save" disabled={saveDisabled}>
         <Plus aria-hidden />
       </button>
       {items.slice(2).map((item) => (
@@ -367,18 +394,23 @@ function ArchiveHeader({
             );
           })}
         </div>
-        <label className="state-select">
-          <SlidersHorizontal aria-hidden />
-          <span className="state-select-label">State preview</span>
-          <select
-            value={previewState}
-            onChange={(event) => onPreviewStateChange(event.target.value as PreviewState)}
-          >
-            {stateOptions.map((option) => (
-              <option key={option.value} value={option.value}>{option.label}</option>
-            ))}
-          </select>
-        </label>
+        {process.env.NODE_ENV !== "production" ? (
+          <details className="demo-controls">
+            <summary><SlidersHorizontal aria-hidden />Demo states</summary>
+            <label>
+              <span className="sr-only">Preview state</span>
+              <select
+                aria-label="Preview state"
+                value={previewState}
+                onChange={(event) => onPreviewStateChange(event.target.value as PreviewState)}
+              >
+                {stateOptions.map((option) => (
+                  <option key={option.value} value={option.value}>{option.label}</option>
+                ))}
+              </select>
+            </label>
+          </details>
+        ) : null}
       </div>
     </>
   );
@@ -481,6 +513,7 @@ function SearchDialog({
 }) {
   const [query, setQuery] = useState("");
   const [scope, setScope] = useState<SearchScope>("all");
+  const [activeIndex, setActiveIndex] = useState(0);
   useEffect(() => {
     if (!open) {
       setQuery("");
@@ -495,6 +528,28 @@ function SearchDialog({
       }).slice(0, 6),
     [items, query, scope],
   );
+
+  useEffect(() => {
+    setActiveIndex(0);
+  }, [query, scope, open]);
+
+  const listboxId = "search-results-listbox";
+  const optionId = (item: ArchiveItem) => `search-option-${item.id}`;
+  const activeOption = results[activeIndex];
+
+  const handleSearchKeyDown = (event: ReactKeyboardEvent<HTMLInputElement>) => {
+    if (!results.length) return;
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      setActiveIndex((current) => (current + 1) % results.length);
+    } else if (event.key === "ArrowUp") {
+      event.preventDefault();
+      setActiveIndex((current) => (current - 1 + results.length) % results.length);
+    } else if (event.key === "Enter" && activeOption) {
+      event.preventDefault();
+      onOpenItem(activeOption);
+    }
+  };
 
   return (
     <MorphingModal
@@ -512,7 +567,13 @@ function SearchDialog({
           placeholder="Search titles, notes, tags…"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
+          onKeyDown={handleSearchKeyDown}
           aria-label="Search archive"
+          role="combobox"
+          aria-expanded={results.length > 0}
+          aria-controls={listboxId}
+          aria-autocomplete="list"
+          aria-activedescendant={activeOption ? optionId(activeOption) : undefined}
         />
         <kbd>esc</kbd>
       </div>
@@ -531,16 +592,27 @@ function SearchDialog({
       <div className="command-results">
         <p>{query ? `${results.length} matches` : "Recently saved"}</p>
         {results.length ? (
-          <ul>
-            {results.map((item) => (
-              <li key={item.id}>
-                <button type="button" onClick={() => onOpenItem(item)}>
-                  <span className="result-icon"><NavIcon section={item.type === "product" ? "products" : item.type === "article" ? "reading" : "inbox"} /></span>
-                  <span><strong>{item.title}</strong><small>{item.site} · {item.collection}</small></span>
-                  <ChevronRight aria-hidden />
-                </button>
-              </li>
-            ))}
+          <ul id={listboxId} role="listbox" aria-label="Search results">
+            {results.map((item, index) => {
+              const isActive = index === activeIndex;
+              return (
+                <li key={item.id} role="none">
+                  <button
+                    type="button"
+                    id={optionId(item)}
+                    role="option"
+                    aria-selected={isActive}
+                    tabIndex={-1}
+                    onClick={() => onOpenItem(item)}
+                    onMouseEnter={() => setActiveIndex(index)}
+                  >
+                    <span className="result-icon"><NavIcon section={item.type === "product" ? "products" : item.type === "article" ? "reading" : "inbox"} /></span>
+                    <span><strong>{item.title}</strong><small>{item.site} · {item.collection}</small></span>
+                    <ChevronRight aria-hidden />
+                  </button>
+                </li>
+              );
+            })}
           </ul>
         ) : (
           <div className="command-empty">No exact match. Try a site, collection, tag, or note.</div>
@@ -558,13 +630,14 @@ function QuickSaveDialog({
 }: {
   open: boolean;
   onClose: () => void;
-  onSave: (input: { url: string; title?: string; note?: string; type: ItemType }) => void;
+  onSave: (input: { url: string; title?: string; note?: string; type: ItemType }) => Promise<void>;
 }) {
   const [url, setUrl] = useState("");
   const [title, setTitle] = useState("");
   const [note, setNote] = useState("");
   const [type, setType] = useState<ItemType>("link");
   const [error, setError] = useState("");
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     if (!open) {
@@ -573,15 +646,20 @@ function QuickSaveDialog({
       setNote("");
       setType("link");
       setError("");
+      setSaving(false);
     }
   }, [open]);
 
-  const submit = (event: FormEvent) => {
+  const submit = async (event: FormEvent) => {
     event.preventDefault();
+    if (saving) return;
+    setSaving(true);
     try {
-      onSave({ url, title, note, type });
+      await onSave({ url, title, note, type });
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "This link could not be saved.");
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -621,7 +699,7 @@ function QuickSaveDialog({
           <textarea rows={3} placeholder="Why is this worth keeping?" value={note} onChange={(event) => setNote(event.target.value)} />
         </label>
         {error ? <p className="form-error" role="alert"><CircleAlert aria-hidden />{error}</p> : null}
-        <div className="modal-actions"><span>Saved locally to Inbox</span><button type="submit" className="primary-button"><Plus aria-hidden /> Save item</button></div>
+        <div className="modal-actions"><span>Saved locally to Inbox</span><button type="submit" className="primary-button" disabled={saving}><Plus aria-hidden />{saving ? "Saving…" : "Save item"}</button></div>
       </form>
     </MorphingModal>
   );
@@ -704,16 +782,18 @@ function DetailDrawer({
 }: {
   item: ArchiveItem | null;
   onClose: () => void;
-  onTargetUpdate: (itemId: string, cents: number | undefined, enabled: boolean) => void;
+  onTargetUpdate: (itemId: string, cents: number | undefined, enabled: boolean) => Promise<void>;
 }) {
   const [target, setTarget] = useState("");
   const [alertEnabled, setAlertEnabled] = useState(false);
   const [targetError, setTargetError] = useState("");
+  const [targetSaving, setTargetSaving] = useState(false);
 
   useEffect(() => {
     setTarget(formatTargetInput(item?.product?.targetPriceCents));
     setAlertEnabled(item?.product?.alertEnabled ?? false);
     setTargetError("");
+    setTargetSaving(false);
   }, [item]);
 
   const handleOpenChange = useCallback((value: boolean) => {
@@ -747,20 +827,24 @@ function DetailDrawer({
       <div className="sparkline-caption"><span>30 days ago</span><span>Today</span></div>
       <form
         className="target-form"
-        onSubmit={(event) => {
+        onSubmit={async (event) => {
           event.preventDefault();
+          if (targetSaving) return;
+          setTargetSaving(true);
           try {
-            onTargetUpdate(item.id, parseTargetInput(target), alertEnabled);
+            await onTargetUpdate(item.id, parseTargetInput(target), alertEnabled);
             setTargetError("");
           } catch (caught) {
             setTargetError(caught instanceof Error ? caught.message : "Enter a valid target price");
+          } finally {
+            setTargetSaving(false);
           }
         }}
       >
         <label>Target price<div className="price-input"><span>$</span><input inputMode="decimal" value={target} onChange={(event) => { setTarget(event.target.value); setTargetError(""); }} aria-label="Target price in dollars" aria-invalid={Boolean(targetError)} /></div></label>
         {targetError ? <p className="form-error" role="alert"><CircleAlert aria-hidden />{targetError}</p> : null}
         <label className="toggle-row"><span><strong>Price alert</strong><small>Local prototype state only</small></span><input type="checkbox" checked={alertEnabled} onChange={(event) => setAlertEnabled(event.target.checked)} /></label>
-        <button type="submit" className="primary-button">Update target</button>
+        <button type="submit" className="primary-button" disabled={targetSaving}>{targetSaving ? "Updating…" : "Update target"}</button>
       </form>
     </div>
   ) : (
@@ -805,7 +889,9 @@ export function AmbarApp() {
   const [modal, setModal] = useState<ModalName>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [theme, setTheme] = useState<"light" | "dark">("light");
-  const localId = useRef(1);
+  const [vaultStatus, setVaultStatus] = useState<VaultStatus>("booting");
+  const pendingMutation = useRef<((current: ArchiveItem[]) => ArchiveItem[]) | null>(null);
+  const writeInFlight = useRef(false);
   const { toasts, showToast, dismissToast } = useAnimatedToastStack({ limit: 3 });
 
   const closeModal = useCallback(() => setModal(null), []);
@@ -823,6 +909,35 @@ export function AmbarApp() {
   }, [theme]);
 
   useEffect(() => {
+    const vault = readVault(window.localStorage);
+    if (vault.status === "ready") {
+      setItems(vault.items);
+      setVaultStatus("saved");
+    } else if (vault.status === "empty") {
+      setVaultStatus("example");
+    } else {
+      setVaultStatus("recovery");
+    }
+  }, []);
+
+  useEffect(() => {
+    const syncFromAnotherTab = (event: StorageEvent) => {
+      if (event.key !== AMBAR_VAULT_KEY) return;
+      const vault = readVault(window.localStorage);
+      if (vault.status === "ready") {
+        setItems(vault.items);
+        setVaultStatus(pendingMutation.current ? "write-error" : "saved");
+      } else if (vault.status === "empty") {
+        setVaultStatus(pendingMutation.current ? "write-error" : "example");
+      } else {
+        setVaultStatus("recovery");
+      }
+    };
+    window.addEventListener("storage", syncFromAnotherTab);
+    return () => window.removeEventListener("storage", syncFromAnotherTab);
+  }, []);
+
+  useEffect(() => {
     const handleShortcut = (event: KeyboardEvent) => {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
         event.preventDefault();
@@ -830,7 +945,7 @@ export function AmbarApp() {
         setModal("search");
       }
       if (
-        event.key.toLowerCase() === "s" &&
+        event.code === "KeyS" &&
         !event.metaKey &&
         !event.ctrlKey &&
         event.altKey &&
@@ -851,32 +966,124 @@ export function AmbarApp() {
     setSelectedId(item.id);
   };
 
-  const saveItem = (input: { url: string; title?: string; note?: string; type: ItemType }) => {
+  const persistItems = async (
+    transform: (current: ArchiveItem[]) => ArchiveItem[],
+    allowRecovery = false,
+  ) => {
+    if (vaultStatus === "booting" || writeInFlight.current) {
+      return { ok: false as const, reason: "busy" as const };
+    }
+    pendingMutation.current = transform;
+    writeInFlight.current = true;
+    const result = await mutateVault(
+      window.localStorage,
+      transform,
+      new Date(),
+      allowRecovery,
+    ).catch(() => ({ ok: false as const, reason: "write-error" as const }));
+    writeInFlight.current = false;
+    if (result.ok) {
+      pendingMutation.current = null;
+      setItems(result.items);
+      setVaultStatus("saved");
+    } else if (result.reason === "corrupt") {
+      setVaultStatus("recovery");
+    } else {
+      setVaultStatus("write-error");
+    }
+    return result;
+  };
+
+  const saveItem = async (input: { url: string; title?: string; note?: string; type: ItemType }) => {
+    if (vaultStatus === "booting" || vaultStatus === "recovery") {
+      showToast({
+        status: "error",
+        title: vaultStatus === "booting" ? "Local vault is opening" : "Recover the local vault first",
+        description: vaultStatus === "booting"
+          ? "Wait a moment before saving."
+          : "Your unreadable vault has not been replaced.",
+      });
+      return;
+    }
+
     const next = createQuickSaveItem(input, {
-      id: `local-${localId.current++}`,
+      id: window.crypto.randomUUID(),
       now: new Date(),
     });
-    setItems((current) => [next, ...current]);
+    let duplicate: ArchiveItem | undefined;
+    const result = await persistItems((current) => {
+      duplicate = findDuplicateItem(current, input.url);
+      return duplicate ? current : [next, ...current];
+    });
+
+    if (duplicate && result.ok) {
+      setModal(null);
+      setSelectedId(duplicate.id);
+      showToast({
+        status: "error",
+        title: "Already in your vault",
+        description: duplicate.title,
+      });
+      return;
+    }
+
+    const saved = result.ok;
     setPreviewState("ready");
     setSection("inbox");
     setModal(null);
     showToast({
-      status: "success",
-      title: "Saved to Inbox",
-      description: next.title,
+      status: saved ? "success" : "error",
+      title: saved ? "Saved to Inbox" : "Local save failed",
+      description: saved
+        ? next.title
+        : result.reason === "busy"
+          ? "Another AMBAR tab is saving. Retry in a moment."
+          : "Retry local storage before closing this page.",
     });
   };
 
-  const updateTarget = (itemId: string, cents: number | undefined, enabled: boolean) => {
-    setItems((current) => updateProductTarget(current, itemId, cents, enabled));
+  const updateTarget = async (itemId: string, cents: number | undefined, enabled: boolean) => {
+    if (vaultStatus === "booting" || vaultStatus === "recovery" || vaultStatus === "example") {
+      showToast({
+        status: "error",
+        title: "Start your local vault first",
+        description: "Save a personal piece before changing price targets.",
+      });
+      return;
+    }
+    const result = await persistItems((current) => updateProductTarget(current, itemId, cents, enabled));
     showToast({
-      status: "success",
-      title: "Target updated",
-      description: cents === undefined ? "Price target cleared." : `Watching ${formatPrice(cents)}${enabled ? " with an alert." : "."}`,
+      status: result.ok ? "success" : "error",
+      title: result.ok ? "Target updated" : "Target is not saved",
+      description: result.ok
+        ? cents === undefined
+          ? "Price target cleared."
+          : `Watching ${formatPrice(cents)}${enabled ? " with an alert." : "."}`
+        : result.reason === "busy"
+          ? "Another AMBAR tab is saving. Retry in a moment."
+          : "Retry local storage before closing this page.",
     });
+  };
+
+  const repairVault = async () => {
+    const retry = pendingMutation.current ?? (
+      vaultStatus === "recovery"
+        ? () => []
+        : (current: ArchiveItem[]) => current
+    );
+    const result = await persistItems(retry, vaultStatus === "recovery");
+    if (result.ok) {
+      setPreviewState(result.items.length === 0 ? "empty" : "ready");
+      showToast({
+        status: "success",
+        title: "Local vault ready",
+        description: "This archive will now stay on this device.",
+      });
+    }
   };
 
   const overlayOpen = modal !== null || selectedItem !== null;
+  const saveDisabled = vaultStatus === "booting" || vaultStatus === "recovery";
 
   return (
     <div className="app-shell">
@@ -891,6 +1098,8 @@ export function AmbarApp() {
         onSave={() => setModal("save")}
         onImport={() => setModal("import")}
         items={items}
+        vaultStatus={vaultStatus}
+        saveDisabled={saveDisabled}
       />
       <div className="workspace">
         <Header
@@ -900,8 +1109,46 @@ export function AmbarApp() {
           onThemeToggle={() => setTheme((current) => current === "light" ? "dark" : "light")}
           section={section}
           onSectionChange={(value) => { setSection(value); setPreviewState("ready"); }}
+          saveDisabled={saveDisabled}
         />
+        <div
+          className={`responsive-vault-status vault-status-${vaultStatus}`}
+          data-testid="responsive-vault-status"
+          role="status"
+        >
+          <span className="local-dot" />
+          <span>
+            {vaultStatus === "saved"
+              ? "Saved on this device"
+              : vaultStatus === "example"
+                ? "Example only · not saved"
+                : vaultStatus === "booting"
+                  ? "Opening local vault"
+                  : "Local vault attention needed"} · no cloud sync
+          </span>
+        </div>
         <main className="main-content">
+          {vaultStatus === "example" ? (
+            <div className="example-vault-banner" role="status">
+              <Archive aria-hidden />
+              <span><strong>Example vault</strong>These sample pieces are not in your personal vault.</span>
+              <button type="button" onClick={() => setModal("save")}>Save your first piece</button>
+            </div>
+          ) : null}
+          {vaultStatus === "recovery" || vaultStatus === "write-error" ? (
+            <div className="vault-notice" role="alert">
+              <CircleAlert aria-hidden />
+              <span>
+                <strong>{vaultStatus === "recovery" ? "Local vault needs recovery" : "Local changes are not saved"}</strong>
+                {vaultStatus === "recovery"
+                  ? "The starter archive is open, but the unreadable vault has not been replaced."
+                  : "AMBAR is still usable in this tab. Check browser storage, then retry."}
+              </span>
+              <button type="button" onClick={repairVault}>
+                {vaultStatus === "recovery" ? "Start a fresh local vault" : "Retry local save"}
+              </button>
+            </div>
+          ) : null}
           {section === "access" ? (
             <AgentAccess />
           ) : (
@@ -926,10 +1173,10 @@ export function AmbarApp() {
             </>
           )}
         </main>
-        <footer className="workspace-footer"><span>AMBAR v0 · local interactive prototype</span><span>No sync · no scraping · no account</span></footer>
+        <footer className="workspace-footer"><span>AMBAR Local Vault · single-device archive</span><span>{vaultStatus === "saved" ? "Saved on this device" : vaultStatus === "example" ? "Example only · not saved" : "Local vault attention needed"} · no cloud sync</span></footer>
       </div>
 
-      <MobileNav section={section} onSectionChange={(value) => { setSection(value); setPreviewState("ready"); }} onSave={() => setModal("save")} />
+      <MobileNav section={section} onSectionChange={(value) => { setSection(value); setPreviewState("ready"); }} onSave={() => setModal("save")} saveDisabled={saveDisabled} />
       </div>
       <SearchDialog open={modal === "search"} onClose={closeModal} items={items} onOpenItem={openItem} />
       <QuickSaveDialog open={modal === "save"} onClose={closeModal} onSave={saveItem} />

@@ -69,20 +69,49 @@ function TypeLabel({ item }: { item: ArchiveItem }) {
   );
 }
 
+function formatSavedDate(savedAt: string) {
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    timeZone: "UTC",
+  }).format(new Date(savedAt));
+}
+
+function DeltaBadge({ delta }: { delta: number }) {
+  const down = delta < 0;
+  const direction = down ? "down" : delta > 0 ? "up" : "unchanged";
+  return (
+    <span
+      className={`delta-badge ${down ? "delta-down" : delta > 0 ? "delta-up" : "delta-flat"}`}
+    >
+      {down ? (
+        <ArrowDownRight aria-hidden />
+      ) : delta > 0 ? (
+        <ArrowUpRight aria-hidden />
+      ) : (
+        <Minus aria-hidden />
+      )}
+      <span className="delta-direction">{direction}</span>
+      {Math.abs(delta).toFixed(0)}%
+    </span>
+  );
+}
+
 function PriceSummary({ item, compact = false }: { item: ArchiveItem; compact?: boolean }) {
   if (!item.product) return null;
   const delta = priceDeltaPercent(item.product);
-  const down = delta !== undefined && delta < 0;
 
   return (
     <div className={`price-summary ${compact ? "price-summary-compact" : ""}`}>
-      <strong>{formatPrice(item.product.currentPriceCents)}</strong>
-      {delta !== undefined ? (
-        <span className={down ? "delta-down" : delta > 0 ? "delta-up" : "delta-flat"}>
-          {down ? <ArrowDownRight aria-hidden /> : delta > 0 ? <ArrowUpRight aria-hidden /> : <Minus aria-hidden />}
-          {Math.abs(delta).toFixed(0)}%
-        </span>
-      ) : null}
+      <span className="price-now">
+        <strong>{formatPrice(item.product.currentPriceCents)}</strong>
+        {item.product.previousPriceCents !== undefined ? (
+          <span className="price-was">
+            was {formatPrice(item.product.previousPriceCents)}
+          </span>
+        ) : null}
+      </span>
+      {delta !== undefined ? <DeltaBadge delta={delta} /> : null}
     </div>
   );
 }
@@ -93,8 +122,20 @@ function MetaLine({ item }: { item: ArchiveItem }) {
       <span>{item.site}</span>
       <span aria-hidden>·</span>
       <span>{item.collection}</span>
+      <span aria-hidden>·</span>
+      <span>Saved {formatSavedDate(item.savedAt)}</span>
     </p>
   );
+}
+
+function productStatusLabel(item: ArchiveItem) {
+  const product = item.product;
+  if (!product || product.targetPriceCents === undefined) return null;
+  const reached =
+    product.currentPriceCents !== undefined &&
+    product.currentPriceCents <= product.targetPriceCents;
+  if (reached) return "Target reached";
+  return product.alertEnabled ? "Watching price" : "Alert paused";
 }
 
 function itemAccessibleLabel(item: ArchiveItem) {
@@ -102,13 +143,20 @@ function itemAccessibleLabel(item: ArchiveItem) {
   if (item.product) {
     const delta = priceDeltaPercent(item.product);
     parts.push(`current price ${formatPrice(item.product.currentPriceCents)}`);
+    if (item.product.previousPriceCents !== undefined) {
+      parts.push(`was ${formatPrice(item.product.previousPriceCents)}`);
+    }
     if (delta !== undefined) {
       const direction = delta < 0 ? "down" : delta > 0 ? "up" : "unchanged";
       parts.push(`${direction} ${Math.abs(delta).toFixed(0)} percent`);
     }
+    const status = productStatusLabel(item);
+    if (status) parts.push(status.toLocaleLowerCase("en-US"));
   } else if (item.type === "article") {
     parts.push(`${item.readProgress ?? 0} percent read`);
   }
+  if (item.status === "processing") parts.push("indexing");
+  parts.push(`saved ${formatSavedDate(item.savedAt)}`);
   return parts.join(", ");
 }
 
@@ -180,10 +228,18 @@ function CardView({ items, onOpen }: ArchiveItemsProps) {
               <strong>{item.title}</strong>
               <p>{item.note}</p>
             </div>
-            {item.product ? <PriceSummary item={item} /> : null}
+            {item.product ? (
+              <>
+                <PriceSummary item={item} />
+                <ProductStatus item={item} />
+              </>
+            ) : null}
             {item.type === "article" ? (
-              <div className="reading-meter" aria-label={`${item.readProgress ?? 0}% read`}>
-                <span style={{ width: `${item.readProgress ?? 0}%` }} />
+              <div className="reading-row">
+                <div className="reading-meter" aria-hidden="true">
+                  <span style={{ width: `${item.readProgress ?? 0}%` }} />
+                </div>
+                <span className="progress-copy">{item.readProgress ?? 0}% read</span>
               </div>
             ) : null}
             <MetaLine item={item} />
@@ -197,21 +253,37 @@ function CardView({ items, onOpen }: ArchiveItemsProps) {
 function GalleryView({ items, onOpen }: ArchiveItemsProps) {
   return (
     <ul className="gallery-grid" aria-label="Saved item gallery">
-      {items.map((item) => (
-        <li key={item.id} className="gallery-item">
-          <OpenItemButton item={item} onOpen={onOpen} className="gallery-button">
-            <ItemVisual item={item} />
-            <span className="gallery-caption">
-              <TypeLabel item={item} />
-              <strong>{item.title}</strong>
-              <span className="gallery-meta">
-                {item.site}
-                {item.product ? ` · ${formatPrice(item.product.currentPriceCents)}` : ""}
+      {items.map((item) => {
+        const delta = item.product ? priceDeltaPercent(item.product) : undefined;
+        return (
+          <li key={item.id} className="gallery-item">
+            <OpenItemButton item={item} onOpen={onOpen} className="gallery-button">
+              <ItemVisual item={item} />
+              <span className="gallery-caption">
+                <TypeLabel item={item} />
+                <strong>{item.title}</strong>
+                <span className="gallery-meta">
+                  {item.site}
+                  {item.product ? (
+                    <>
+                      {" · "}
+                      {formatPrice(item.product.currentPriceCents)}
+                      {delta !== undefined ? (
+                        <>
+                          {" "}
+                          <DeltaBadge delta={delta} />
+                        </>
+                      ) : null}
+                    </>
+                  ) : item.type === "article" ? (
+                    ` · ${item.readProgress ?? 0}% read`
+                  ) : null}
+                </span>
               </span>
-            </span>
-          </OpenItemButton>
-        </li>
-      ))}
+            </OpenItemButton>
+          </li>
+        );
+      })}
     </ul>
   );
 }
@@ -231,26 +303,38 @@ function TableView({ items, onOpen }: ArchiveItemsProps) {
           </tr>
         </thead>
         <tbody>
-          {items.map((item) => (
-            <tr key={item.id}>
-              <td>
-                <button type="button" onClick={() => onOpen(item)}>
-                  {item.title}
-                  <span>{item.site}</span>
-                </button>
-              </td>
-              <td><TypeLabel item={item} /></td>
-              <td>{item.collection}</td>
-              <td>{new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" }).format(new Date(item.savedAt))}</td>
-              <td>
-                {item.product
-                  ? formatPrice(item.product.currentPriceCents)
-                  : item.type === "article"
-                    ? `${item.readProgress ?? 0}% read`
-                    : "Saved"}
-              </td>
-            </tr>
-          ))}
+          {items.map((item) => {
+            const delta = item.product ? priceDeltaPercent(item.product) : undefined;
+            return (
+              <tr key={item.id}>
+                <td>
+                  <button
+                    type="button"
+                    onClick={() => onOpen(item)}
+                    aria-label={itemAccessibleLabel(item)}
+                  >
+                    {item.title}
+                    <span>{item.site}</span>
+                  </button>
+                </td>
+                <td><TypeLabel item={item} /></td>
+                <td>{item.collection}</td>
+                <td>{formatSavedDate(item.savedAt)}</td>
+                <td>
+                  {item.product ? (
+                    <span className="cell-price">
+                      {formatPrice(item.product.currentPriceCents)}
+                      {delta !== undefined ? <DeltaBadge delta={delta} /> : null}
+                    </span>
+                  ) : item.type === "article" ? (
+                    `${item.readProgress ?? 0}% read`
+                  ) : (
+                    "Saved"
+                  )}
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>
@@ -325,16 +409,13 @@ export function Sparkline({ values }: { values: number[] }) {
 }
 
 export function ProductStatus({ item }: { item: ArchiveItem }) {
-  const product = item.product;
-  if (!product) return null;
-  const reached =
-    product.currentPriceCents !== undefined &&
-    product.targetPriceCents !== undefined &&
-    product.currentPriceCents <= product.targetPriceCents;
+  const status = productStatusLabel(item);
+  if (!status) return null;
+  const reached = status === "Target reached";
   return (
     <span className={reached ? "target-reached" : "target-watching"}>
       <Bell aria-hidden />
-      {reached ? "Target reached" : product.alertEnabled ? "Watching price" : "Alert paused"}
+      {status}
     </span>
   );
 }

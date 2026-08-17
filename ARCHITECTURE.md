@@ -1,14 +1,17 @@
 # AMBAR — Architecture
 
-## v0
-Next.js App Router + React 19 + TypeScript + Tailwind CSS 4. UI behavior is local and deterministic. Domain functions stay framework-independent and tested.
+## Current local-vault slice
+Next.js App Router + React 19 + TypeScript + Tailwind CSS 4. Domain functions stay framework-independent and tested.
 
 ```text
 UI routes/components
-  → local application state
-  → domain functions (search, parsing, price calculations)
-  → realistic immutable fixtures
+  → hydrated application state
+  → versioned local-vault adapter
+  → domain functions (validation, normalized URL identity, search, parsing, price calculations)
+  → realistic immutable fixtures shown only as a labelled, unsaved example vault
 ```
+
+The initial server/client render uses deterministic fixtures. Local storage is read after hydration. An empty store stays empty: fixtures are never written as user data. The first personal save replaces the example view with a user-only vault; later explicit mutations report the real write result. Mutations rebase on the latest stored vault while holding an atomic browser Web Lock, and `storage` events reconcile other open tabs without dismissing pending local changes, preventing silent whole-vault overwrites. Browsers without Web Locks fail closed rather than writing unsafely. The adapter returns explicit `empty`, `ready`, `corrupt`, `unsupported`, busy, and write-failure outcomes. Payloads are runtime-validated before they reach application state.
 
 ## Production direction
 A TypeScript modular monolith with a separate worker:

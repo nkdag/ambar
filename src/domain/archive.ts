@@ -89,6 +89,7 @@ export function filterArchiveItems(
 
     const index = [
       item.title,
+      item.url,
       item.site,
       item.collection,
       item.note,
@@ -104,12 +105,34 @@ export function filterArchiveItems(
   });
 }
 
+export function normalizeArchiveUrl(value: string) {
+  const parsed = safeWebUrl(value);
+  if (!parsed) return null;
+
+  parsed.hash = "";
+  for (const key of [...parsed.searchParams.keys()]) {
+    if (key.toLowerCase().startsWith("utm_") || ["fbclid", "gclid", "dclid", "mc_cid", "mc_eid"].includes(key.toLowerCase())) {
+      parsed.searchParams.delete(key);
+    }
+  }
+  parsed.searchParams.sort();
+  parsed.pathname = parsed.pathname === "/" ? "/" : parsed.pathname.replace(/\/+$/, "");
+  return parsed.toString().replace(/\?$/, "").replace(/\/$/, parsed.pathname === "/" ? "/" : "");
+}
+
+export function findDuplicateItem(items: readonly ArchiveItem[], value: string) {
+  const normalized = normalizeArchiveUrl(value);
+  if (!normalized) return undefined;
+  return items.find((item) => normalizeArchiveUrl(item.url) === normalized);
+}
+
 export function createQuickSaveItem(
   input: QuickSaveInput,
   context: QuickSaveContext,
 ): ArchiveItem {
-  const parsedUrl = safeWebUrl(input.url);
-  if (!parsedUrl) throw new Error("Enter a valid http or https URL");
+  const normalizedUrl = normalizeArchiveUrl(input.url);
+  if (!normalizedUrl) throw new Error("Enter a valid http or https URL");
+  const parsedUrl = new URL(normalizedUrl);
 
   const hostname = parsedUrl.hostname.replace(/^www\./, "");
   const fallbackTitle = hostname
