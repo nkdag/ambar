@@ -53,6 +53,21 @@ describe("AmbarApp mobile header accessibility", () => {
   });
 });
 
+describe("AmbarApp launch information", () => {
+  it("links to privacy and terms from the application navigation", () => {
+    render(<AmbarApp />);
+
+    expect(screen.getByRole("link", { name: "Privacy" })).toHaveAttribute(
+      "href",
+      "/privacy",
+    );
+    expect(screen.getByRole("link", { name: "Terms" })).toHaveAttribute(
+      "href",
+      "/terms",
+    );
+  });
+});
+
 describe("AmbarApp local vault", () => {
   it("loads a validated local vault after the deterministic first render", async () => {
     const storedItem = {
@@ -65,7 +80,7 @@ describe("AmbarApp local vault", () => {
     render(<AmbarApp />);
 
     expect(
-      await screen.findByRole("button", { name: /a genuinely persistent archive record/i }),
+      await screen.findByRole("button", { name: /^Open A genuinely persistent archive record/i }),
     ).toBeInTheDocument();
     expect(screen.queryByText(archiveFixtures[1].title)).not.toBeInTheDocument();
   });
@@ -230,7 +245,7 @@ describe("AmbarApp local vault", () => {
   it("does not add a second item for the same normalized URL", async () => {
     writeVault(localStorage, [archiveFixtures[0]], new Date("2026-08-17T20:00:00.000Z"));
     render(<AmbarApp />);
-    await screen.findByRole("button", { name: /pour-over kettle/i });
+    await screen.findByRole("button", { name: /^Open Pour-over kettle/i });
 
     fireEvent.click(screen.getByRole("button", { name: "Save" }));
     fireEvent.change(screen.getByLabelText("Link"), {

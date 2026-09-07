@@ -1,0 +1,30 @@
+{
+  "source": "https://github.com/ibelick/motion-primitives",
+  "commit": "92586e62a951eb9b6bfd1cc7c8a4e6e2ab6ba17d",
+  "license": "MIT",
+  "license_source": "LICENCE.md",
+  "license_sha256": "f668f5ef3635eb906f10b1eea9a32e449eb6e1a183ab6879ef6d56c0980dd2f3",
+  "installed_license": "licenses/Motion-Primitives-MIT.txt",
+  "files": [
+    {
+      "source_path": "components/core/animated-number.tsx",
+      "original_sha256": "3b4a9f3262cb79527fba01a76576e920e340137f0643bf34a7732f7f8b1ff792",
+      "installed_path": "src/components/base/animated-number/animated-number.tsx",
+      "installed_sha256": "a08895cf60ef8ab0438009996cc4dbea8da4be0f8ac6e4ad0666f2dd1f2f3fd1",
+      "adaptation": "BoardUI semantic tokens and cx; static SSR; live reduced-motion opt out; decorative-only animation. Stable accessible number, fixed en-US format, explicit motion subscription cleanup, and DOM subscription instead of a full motion component."
+    },
+    {
+      "source_path": "components/core/spotlight.tsx",
+      "original_sha256": "04419912db5ebe72a03199a39265a3db33398b3c48c0e854e9fb5be604700041",
+      "installed_path": "src/components/base/spotlight/spotlight.tsx",
+      "installed_sha256": "0de8b776ab645bddc666d4c42251fe361b043954dd83fc0e77836f75ebbaa2d6",
+      "adaptation": "BoardUI semantic tokens and cx; static SSR; live reduced-motion opt out; decorative-only animation. Fine mouse pointer only; scoped CSS light; no parent style mutations; cleanup listeners and springs."
+    }
+  ],
+  "original_artwork": {
+    "path": "src/assets/ambar-shelf-contours.svg",
+    "sha256": "f9cc198430d01e8eb15dc6b7405fd58718b71c76c2c7d65ef6814ab97b571fb6",
+    "author": "AMBAR project",
+    "description": "Deterministic local shelf contour and registration grain SVG. Original artwork; not a Haikei export."
+  }
+}

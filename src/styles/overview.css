@@ -1,0 +1,222 @@
+/* AMBAR Control Room. One BoardUI token/type system; no external visuals. */
+@layer components {
+  .overview { @apply grid gap-6; }
+  .main-content.overview-content { @apply pt-5; }
+  .overview-heading { @apply flex items-center justify-between gap-4; }
+  .overview-heading > div { @apply min-w-0; }
+  .overview-heading p { @apply mb-2 flex items-center gap-2 text-body-2-medium text-text-secondary; }
+  .overview-heading p span { @apply text-foreground-icon-secondary; }
+  .overview-heading h1 { @apply text-title-1-semibold; font-size: 30px; line-height: 1.2; letter-spacing: -.8px; }
+  .overview-heading > div > span { @apply mt-2 block text-body-regular text-text-secondary; }
+  .example-vault-banner.overview-example { @apply mb-5 rounded-2lg border-0 bg-background-secondary-default px-3 py-2; grid-template-columns: 18px minmax(0,1fr) auto; }
+  .example-vault-banner.overview-example > span { @apply flex flex-wrap gap-x-2 gap-y-0 text-caption-1-regular; }
+  .example-vault-banner.overview-example strong { @apply text-caption-1-medium; }
+  .example-vault-banner.overview-example > svg { @apply size-4; }
+  .example-vault-banner.overview-example > button { @apply min-h-7 py-1 text-caption-1-medium; }
+  .overview-stats { @apply gap-3; }
+  .overview-stats > section { @apply h-36 border border-border-button-default; }
+  .overview-stats > section > span { @apply rounded-2lg shadow-xs; }
+  .overview-stats > section:nth-child(1) > span { @apply bg-status-cyan-background; }
+  .overview-stats > section:nth-child(1) > span > svg { @apply text-status-cyan-text; }
+  .overview-stats > section:nth-child(2) > span { @apply bg-status-yellow-background; }
+  .overview-stats > section:nth-child(2) > span > svg { @apply text-status-yellow-text; }
+  .overview-stats > section:nth-child(3) > span { @apply bg-status-lime-background; }
+  .overview-stats > section:nth-child(3) > span > svg { @apply text-status-lime-text; }
+  .overview-stats > section:nth-child(4) > span { @apply bg-status-blue-background; }
+  .overview-stats > section:nth-child(4) > span > svg { @apply text-status-blue-text; }
+  .overview-stats > section > div > div > p { @apply text-title-1-semibold; font-size: 30px; line-height: 36px; }
+  .overview-stats > section > div > div { @apply justify-between; }
+  .overview-stats > section > div > div > span { @apply text-caption-1-medium; }
+  .overview-chart-grid { display: grid; grid-template-columns: minmax(0,1.7fr) minmax(0,1fr); gap: 20px; align-items: stretch; }
+  .overview-panel { @apply min-w-0 rounded-2xl border border-border-button-default bg-background-secondary-default p-4; }
+  .panel-heading { @apply flex min-w-0 items-center justify-between gap-3; }
+  .panel-heading h2 { @apply min-w-0 text-headline-semibold; }
+  .panel-heading > span:last-child { @apply shrink-0 text-caption-1-medium text-text-secondary; }
+  .panel-description { @apply mt-1.5 text-body-2-regular text-text-secondary; }
+  .trend-panel, .activity-panel { min-height: 438px; }
+  .price-product-select { @apply mt-3 max-w-full; width: fit-content; min-width: 0; }
+  .price-product-select button { @apply max-w-full; }
+  .price-product-select button > span { @apply truncate; }
+  .price-chart-content { @apply mt-4; }
+  .chart-headline { @apply flex flex-wrap items-end justify-between gap-3; }
+  .chart-value { @apply flex items-center gap-2; }
+  .chart-value strong { @apply text-title-1-semibold tabular-nums; font-size: 32px; line-height: 40px; }
+  .chart-headline p { @apply mt-0.5 text-caption-1-medium text-text-secondary; }
+  .chart-headline p span { @apply font-normal; }
+  .chart-legend { @apply flex flex-wrap gap-3 text-caption-1-regular text-text-secondary; }
+  .chart-legend > span { @apply flex items-center gap-1.5; }
+  .chart-legend i { @apply inline-block w-3 rounded-full; height: 3px; }
+  .legend-price { background: var(--color-chart-2-active); }
+  .chart-legend .legend-target { border-top: 2px dashed var(--color-chart-target); height: 0; border-radius: 0; }
+  .price-chart { @apply mt-2 w-full min-w-0; height: 192px; }
+  .chart-canvas { width: 100%; height: 100%; min-width: 0; }
+  .native-chart { display: block; width: 100%; height: 100%; overflow: visible; }
+  .native-chart-grid { stroke: var(--color-separator-border); stroke-dasharray: 3 5; }
+  .native-chart-label { fill: var(--color-text-secondary); font-size: 11px; font-family: var(--font-inter), sans-serif; }
+  .native-chart-line { fill: none; stroke: var(--color-chart-2-active); stroke-width: 2.5; vector-effect: non-scaling-stroke; }
+  .native-chart-target { stroke: var(--color-chart-target); stroke-width: 1.5; stroke-dasharray: 5 5; vector-effect: non-scaling-stroke; }
+  .native-chart-cursor { stroke: var(--color-chart-cursor); stroke-dasharray: 4 4; vector-effect: non-scaling-stroke; }
+  .native-chart-dot { fill: var(--color-chart-2-active); stroke: var(--color-background-primary-default); stroke-width: 2; vector-effect: non-scaling-stroke; }
+  .native-chart-bar { fill: var(--color-chart-9-active); }
+  .observation-control { @apply mt-2 flex flex-wrap items-center gap-x-3 gap-y-1; }
+  .observation-control input { @apply min-w-0 flex-1; accent-color: var(--color-chart-2-active); height: 20px; }
+  .observation-control output { @apply text-caption-1-regular text-text-secondary tabular-nums; }
+  .chart-foot { @apply mt-2 flex items-start justify-between gap-2 border-t border-separator-border pt-2; }
+  .chart-data { @apply min-w-0 flex-1 text-caption-1-regular; }
+  .chart-data summary { @apply flex min-h-8 w-fit cursor-pointer items-center gap-1.5 rounded-md px-1 text-text-secondary; }
+  .chart-data summary::before { content: '+'; font-size: 16px; }
+  .chart-data[open] summary::before { content: '−'; }
+  .chart-data table { @apply mt-2 w-full border-collapse text-left tabular-nums; }
+  .chart-data caption { @apply pb-2 text-left text-caption-1-medium; }
+  .chart-data td, .chart-data th { @apply border-b border-separator-border px-1 py-1.5; }
+  .chart-data th { @apply font-medium; }
+  .activity-panel { @apply flex flex-col; }
+  .activity-panel .panel-heading button { @apply px-2.5; }
+  .activity-value { @apply mt-7 flex items-baseline gap-2; }
+  .activity-value strong { @apply text-title-1-semibold tabular-nums; font-size: 38px; line-height: 44px; }
+  .activity-value > span { @apply text-body-medium text-text-secondary; }
+  .activity-range { @apply mt-1 text-caption-1-regular text-text-secondary; }
+  .activity-chart { @apply mt-5 min-w-0 w-full; height: 196px; }
+  .activity-panel > .chart-foot { @apply mt-auto; }
+  .activity-note { @apply pt-2 text-caption-1-regular text-text-secondary; }
+  .overview-detail-grid { @apply grid grid-cols-2 items-stretch gap-5; }
+  .reading-overview, .watch-panel { min-height: 304px; }
+  .reading-overview { @apply flex flex-col; }
+  .finished-reading { @apply mt-auto flex min-w-0 items-center gap-2 border-t border-separator-border pt-3 text-left text-caption-1-regular text-text-secondary; }
+  .finished-reading > span:nth-child(2) { @apply min-w-0 flex-1; overflow-wrap: anywhere; }
+  .finished-reading svg { @apply size-4; }
+  .reading-queue { @apply mt-4 mb-4 grid gap-3; }
+  .reading-queue-item { @apply flex min-w-0 items-center gap-3 rounded-xl bg-background-inner-default p-2 text-left shadow-card; }
+  .reading-cover { @apply flex w-16 shrink-0 flex-col justify-between rounded-lg bg-status-cyan-background p-2.5 text-status-cyan-text; height: 80px; }
+  .reading-queue-item:nth-child(2) .reading-cover { @apply bg-status-yellow-background text-status-yellow-text; }
+  .reading-cover > svg { @apply size-5; }
+  .reading-cover > span { font-size: 8px; line-height: 10px; font-weight: 600; }
+  .reading-item-copy { @apply grid min-w-0 flex-1 gap-1; }
+  .reading-item-copy > small { @apply text-caption-1-regular text-text-secondary; }
+  .reading-item-copy > strong { @apply text-body-medium; }
+  .reading-progress { @apply mt-1 flex items-center gap-3 text-caption-1-medium text-text-secondary tabular-nums; }
+  .reading-progress progress { @apply h-1.5 min-w-0 flex-1 overflow-hidden rounded-full; appearance: none; }
+  .reading-progress progress::-webkit-progress-bar { @apply rounded-full bg-background-tertiary-default; }
+  .reading-progress progress::-webkit-progress-value { @apply rounded-full; background: var(--color-chart-2-active); }
+  .reading-progress progress::-moz-progress-bar { @apply rounded-full; background: var(--color-chart-2-active); }
+  .watch-feed { @apply mt-4 grid gap-2.5; }
+  .watch-row { @apply grid min-w-0 items-center gap-x-2.5 gap-y-1 rounded-xl bg-background-inner-default p-3 text-left shadow-card; grid-template-columns: 32px minmax(0,1fr) 12px; }
+  .watch-icon { @apply row-span-2 grid size-8 place-items-center rounded-full bg-status-yellow-background text-status-yellow-text; }
+  .watch-icon svg { @apply size-4; }
+  .watch-reached .watch-icon { @apply bg-status-lime-background text-status-lime-text; }
+  .watch-copy { @apply grid min-w-0 gap-1; }
+  .watch-copy strong { @apply text-body-medium; }
+  .watch-copy > span { @apply text-caption-1-medium; }
+  .watch-copy > span > span { @apply text-text-secondary; }
+  .watch-row > .watch-copy { grid-column: 2; grid-row: 1; }
+  .watch-row > span:nth-of-type(3) { @apply w-fit py-0.5; grid-column: 2; grid-row: 2; }
+  .watch-arrow { @apply size-4 text-foreground-icon-secondary; grid-column: 3; grid-row: 1 / 3; }
+  .collections-overview > .panel-heading { @apply mb-3; }
+  .collection-cards { @apply grid grid-cols-4 gap-3; }
+  .collection-card { @apply grid min-w-0 items-center gap-x-2 gap-y-1 rounded-xl border border-border-button-default p-3 text-left; grid-template-columns: 24px minmax(0,1fr) 16px; }
+  .collection-card > svg:first-child { @apply size-5 text-status-cyan-text; grid-row: 1 / 3; }
+  .collection-tone-1 > svg:first-child { @apply text-status-yellow-text; }
+  .collection-tone-2 > svg:first-child { @apply text-status-lime-text; }
+  .collection-tone-3 > svg:first-child { @apply text-status-blue-text; }
+  .collection-card > strong { @apply text-body-2-medium; }
+  .collection-card > span { @apply text-caption-1-regular text-text-secondary; grid-column: 2; }
+  .collection-card > svg:last-child { @apply size-4 text-foreground-icon-secondary; grid-column: 3; grid-row: 1 / 3; }
+  .recent-overview { @apply bg-background-primary-default p-0; }
+  .recent-overview > .panel-heading { @apply px-4 py-3; }
+  .recent-table-head, .recent-row { @apply grid min-w-0 items-center gap-4 px-4; grid-template-columns: minmax(0,2fr) minmax(0,.9fr) 70px 100px; }
+  .recent-table-head { @apply border-y border-separator-border bg-background-secondary-default py-2 text-caption-1-medium text-text-secondary; }
+  .recent-row { @apply w-full border-b border-separator-border py-3 text-left text-body-2-regular; }
+  .recent-row:last-child { @apply rounded-b-2xl border-0; }
+  .recent-title { @apply flex min-w-0 items-center gap-3; }
+  .recent-title .archive-visual-compact { @apply size-9 rounded-2lg; }
+  .recent-title .visual-mark { @apply text-body-2-medium; }
+  .recent-title > span { @apply grid min-w-0 gap-0.5; }
+  .recent-title strong { @apply text-body-medium; }
+  .recent-title small, .recent-collection, .recent-row time { @apply text-caption-1-regular text-text-secondary; }
+  .recent-row time { @apply tabular-nums; }
+  .recent-status { @apply justify-self-end; }
+  .recent-table-head > span:last-child { @apply text-right; }
+  .playground-label { @apply flex justify-center gap-2 text-caption-1-regular text-text-secondary; }
+  .panel-empty { @apply py-8 text-body-regular text-text-secondary; }
+  .chart-empty { @apply flex min-h-80 flex-col items-center justify-center gap-3 text-center; }
+  .chart-empty > svg { @apply size-8 text-foreground-icon-secondary; }
+  .chart-empty > p { @apply text-body-2-regular text-text-secondary; }
+  .overview-empty { @apply flex flex-wrap items-center gap-4 rounded-2xl border border-border-button-default p-5; }
+  .overview-empty > div { @apply flex-1; }
+  .overview-empty h2 { @apply text-headline-semibold; }
+  .overview-empty p { @apply text-body-regular text-text-secondary; }
+  .sidebar .collection-list, .library-sheet .collection-list { @apply gap-1; }
+  .collection-list > button { @apply grid min-w-0 items-center gap-2 rounded-lg px-2 py-1.5 text-left text-body-2-regular text-text-secondary; grid-template-columns: 16px minmax(0,1fr) auto; }
+  .collection-list > button small { @apply text-caption-1-regular text-text-secondary; }
+  .collection-list > button > span { overflow-wrap: anywhere; }
+  .watch-copy strong, .reading-item-copy strong, .collection-card strong, .recent-title strong, .recent-collection { overflow-wrap: anywhere; }
+  .nav-row, .collection-list > button, .collection-card, .watch-row, .reading-queue-item, .recent-row, .topbar-tab { transition: background-color 150ms ease, box-shadow 150ms ease, transform 150ms ease; }
+  .collection-card:hover, .watch-row:hover, .reading-queue-item:hover { @apply shadow-sm; transform: translateY(-1px); }
+  .collection-list > button:hover, .recent-row:hover, .topbar-tab:hover { @apply bg-background-secondary-hover; }
+  .collection-card:active, .watch-row:active, .reading-queue-item:active { transform: translateY(0); }
+  .collection-card[data-focus-visible], .watch-row[data-focus-visible], .reading-queue-item[data-focus-visible], .recent-row[data-focus-visible], .collection-list > button[data-focus-visible] { outline: 2px solid var(--color-border-focus-ring); outline-offset: 2px; }
+}
+@media (max-width: 1280px) and (min-width: 1081px) {
+  .overview-chart-grid { grid-template-columns: minmax(0,1.4fr) minmax(0,1fr); }
+  .topbar { padding-inline: 20px; }
+  .search-trigger { width: 190px; }
+  .topbar-tab { padding-inline: 9px; }
+}
+@media (max-width: 1080px) {
+  .overview-chart-grid { grid-template-columns: minmax(0,1.35fr) minmax(0,1fr); gap: 16px; }
+  .overview-stats { grid-template-columns: repeat(4,minmax(0,1fr)); }
+  .overview-stats > section { padding: 12px; height: 150px; }
+  .overview-stats > section > div > div { gap: 2px; }
+  .overview-detail-grid { gap: 16px; }
+  .collection-cards { grid-template-columns: repeat(3,minmax(0,1fr)); }
+  .observation-control input { min-height: 44px; }
+  .chart-data summary { min-height: 44px; }
+  .activity-note { max-width: 80px; text-align: right; }
+  .activity-chart { height: 224px; }
+  .trend-panel, .activity-panel { min-height: 482px; }
+}
+@media (max-width: 760px) {
+  .overview { gap: 20px; }
+  .main-content.overview-content { padding-top: 12px; }
+  .example-vault-banner.overview-example { grid-template-columns: 16px minmax(0,1fr); padding: 8px 10px; margin-bottom: 20px; }
+  .example-vault-banner.overview-example > span { display: block; }
+  .example-vault-banner.overview-example > span strong { margin-right: 6px; }
+  .example-vault-banner.overview-example > button { display: none; }
+  .overview-heading { flex-wrap: wrap; gap: 12px; }
+  .overview-heading h1 { font-size: 28px; }
+  .overview-heading p { margin-bottom: 6px; }
+  .overview-heading > button { min-height: 36px; }
+  .overview-stats { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; }
+  .overview-stats > section { height: 134px; padding: 12px; }
+  .overview-chart-grid, .overview-detail-grid { grid-template-columns: minmax(0,1fr); gap: 16px; }
+  .overview-panel { padding: 14px; }
+  .trend-panel, .activity-panel { min-height: 0; }
+  .panel-heading h2 { font-size: 15px; }
+  .panel-heading { gap: 8px; }
+  .panel-heading button { padding-inline: 6px; }
+  .price-product-select { width: 100%; }
+  .chart-headline { gap: 8px; }
+  .chart-headline p span { display: block; }
+  .chart-legend { gap: 8px; }
+  .price-chart { height: 194px; }
+  .chart-value strong { font-size: 30px; }
+  .observation-control { display: grid; grid-template-columns: minmax(0,1fr); }
+  .observation-control input { width: 100%; }
+  .observation-control output { text-align: center; }
+  .activity-value { margin-top: 16px; }
+  .activity-chart { height: 150px; }
+  .activity-note { max-width: none; }
+  .reading-overview, .watch-panel { min-height: 0; }
+  .collection-cards { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; }
+  .collection-card { padding: 12px; grid-template-columns: 20px minmax(0,1fr); }
+  .collection-card > svg:last-child { display: none; }
+  .recent-overview { padding: 0; }
+  .recent-table-head { display: none; }
+  .recent-row { grid-template-columns: minmax(0,1fr) auto; gap: 8px; padding: 12px; }
+  .recent-row .recent-collection, .recent-row time { display: none; }
+  .recent-title { gap: 10px; }
+  .recent-title strong { font-size: 12px; line-height: 18px; }
+  .recent-title small { font-size: 10px; }
+  .recent-status > span { font-size: 10px; }
+  .playground-label { flex-wrap: wrap; gap: 4px; font-size: 10px; }
+}

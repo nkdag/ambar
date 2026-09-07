@@ -8,6 +8,9 @@ AMBAR is a calm, living personal archive with product price tracking and future 
 - `npm test`
 - `npm run lint`
 - `npm run build`
+- `npm audit`
+- `npm start -- <port>` (Python 3 serves the static `out/` build on localhost)
+- `npm run test:browser` (see README for the local browser path)
 
 ## Safety and scope
 - Current approved slice is honest single-device Local Vault persistence. Real authentication/cloud sync may be designed, but must not be represented as working until a real backend, RLS, export, and deletion path exist.
@@ -20,5 +23,6 @@ AMBAR is a calm, living personal archive with product price tracking and future 
 - Strict RED → GREEN → REFACTOR for behavioral work.
 - One writer per file/module at a time; independent reviewer must inspect the final diff.
 - TypeScript strict; accessible semantic HTML; keyboard support; reduced-motion support.
-- beUI is used selectively as owned source, not as a visual identity or closed dependency.
+- BoardUI free/MIT is the approved canonical frontend language; use owned source under `src/components/base/`, semantic tokens, composite typography, Remix icons, React Aria, and `cx()` from `src/utils/cx.ts`.
+- Preserve BoardUI source provenance/licenses. No Pro, global BoardUI MCP configuration, copied demo branding, or parallel legacy UI system.
 - Completion requires tests, lint, production build, and browser QA at 1440, 834, and 390 widths.

@@ -13,6 +13,8 @@ UI routes/components
 
 The initial server/client render uses deterministic fixtures. Local storage is read after hydration. An empty store stays empty: fixtures are never written as user data. The first personal save replaces the example view with a user-only vault; later explicit mutations report the real write result. Mutations rebase on the latest stored vault while holding an atomic browser Web Lock, and `storage` events reconcile other open tabs without dismissing pending local changes, preventing silent whole-vault overwrites. Browsers without Web Locks fail closed rather than writing unsafely. The adapter returns explicit `empty`, `ready`, `corrupt`, `unsupported`, busy, and write-failure outcomes. Payloads are runtime-validated before they reach application state.
 
+The public artifact is a static Next.js export. Local builds serve from `/`; GitHub Pages builds use `/ambar` with trailing-slash routes. Metadata routes, legal pages, the custom 404, icons, and the social preview are generated without a runtime server. `scripts/verify-launch.mjs` validates both artifact shapes, internal references, image dimensions/budgets, secret-like values, and first-load transfer size. GitHub Pages owns HTTP-to-HTTPS enforcement.
+
 ## Production direction
 A TypeScript modular monolith with a separate worker:
 

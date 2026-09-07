@@ -1,17 +1,21 @@
 "use client";
 
 import {
-  ArrowDownRight,
-  ArrowUpRight,
-  Bell,
-  BookOpen,
-  Box,
-  ExternalLink,
-  FileText,
-  Link2,
-  Minus,
-  MoreHorizontal,
-} from "lucide-react";
+  RiArrowRightDownLine as ArrowDownRight,
+  RiArrowRightUpLine as ArrowUpRight,
+  RiNotification3Line as Bell,
+  RiBookOpenLine as BookOpen,
+  RiBox3Line as Box,
+  RiExternalLinkLine as ExternalLink,
+  RiFileTextLine as FileText,
+  RiLink as Link2,
+  RiSubtractLine as Minus,
+  RiArrowRightSLine as MoreHorizontal,
+} from "@remixicon/react";
+import { Button as AriaButton } from "react-aria-components";
+import { Chip } from "@/components/base/badges/chip";
+import { Table } from "@/components/base/table/table";
+import { cx } from "@/utils/cx";
 import type { ReactNode } from "react";
 import {
   formatPrice,
@@ -49,23 +53,21 @@ export function ItemVisual({
   return (
     <div
       aria-hidden="true"
-      className={`archive-visual ${accentClass[item.accent ?? "sand"]} ${
-        compact ? "archive-visual-compact" : ""
-      }`}
+      className={cx("archive-visual", accentClass[item.accent ?? "sand"], compact && "archive-visual-compact")}
     >
-      <span className="visual-rule" />
+      <span className="visual-type"><ItemTypeIcon item={item} /></span>
       <span className="visual-mark">{monogram}</span>
-      <span className="visual-index">{item.id.slice(-3)}</span>
+      <span className="visual-site">{item.site}</span>
     </div>
   );
 }
 
 function TypeLabel({ item }: { item: ArchiveItem }) {
   return (
-    <span className="type-label">
+    <Chip variant="caption" color="soft" className="type-label">
       <ItemTypeIcon item={item} />
       {item.type}
-    </span>
+    </Chip>
   );
 }
 
@@ -81,9 +83,7 @@ function DeltaBadge({ delta }: { delta: number }) {
   const down = delta < 0;
   const direction = down ? "down" : delta > 0 ? "up" : "unchanged";
   return (
-    <span
-      className={`delta-badge ${down ? "delta-down" : delta > 0 ? "delta-up" : "delta-flat"}`}
-    >
+    <Chip variant="caption" color={down ? "lime" : delta > 0 ? "rose" : "neutral"} className="delta-badge">
       {down ? (
         <ArrowDownRight aria-hidden />
       ) : delta > 0 ? (
@@ -93,7 +93,7 @@ function DeltaBadge({ delta }: { delta: number }) {
       )}
       <span className="delta-direction">{direction}</span>
       {Math.abs(delta).toFixed(0)}%
-    </span>
+    </Chip>
   );
 }
 
@@ -102,7 +102,7 @@ function PriceSummary({ item, compact = false }: { item: ArchiveItem; compact?: 
   const delta = priceDeltaPercent(item.product);
 
   return (
-    <div className={`price-summary ${compact ? "price-summary-compact" : ""}`}>
+    <div className={cx("price-summary", compact && "price-summary-compact")}>
       <span className="price-now">
         <strong>{formatPrice(item.product.currentPriceCents)}</strong>
         {item.product.previousPriceCents !== undefined ? (
@@ -172,14 +172,14 @@ function OpenItemButton({
   children: ReactNode;
 }) {
   return (
-    <button
+    <AriaButton
       type="button"
       className={className}
-      onClick={() => onOpen(item)}
+      onPress={() => onOpen(item)}
       aria-label={itemAccessibleLabel(item)}
     >
       {children}
-    </button>
+    </AriaButton>
   );
 }
 
@@ -188,7 +188,7 @@ function ListView({ items, onOpen }: ArchiveItemsProps) {
     <ul className="archive-list" aria-label="Saved items">
       {items.map((item) => (
         <li key={item.id}>
-          <OpenItemButton item={item} onOpen={onOpen} className="list-item">
+          <OpenItemButton item={item} onOpen={onOpen} className="archive-row">
             <ItemVisual item={item} compact />
             <span className="list-copy">
               <span className="list-heading">
@@ -291,7 +291,7 @@ function GalleryView({ items, onOpen }: ArchiveItemsProps) {
 function TableView({ items, onOpen }: ArchiveItemsProps) {
   return (
     <div className="table-wrap">
-      <table>
+      <Table>
         <caption className="sr-only">Compact archive table</caption>
         <thead>
           <tr>
@@ -308,14 +308,14 @@ function TableView({ items, onOpen }: ArchiveItemsProps) {
             return (
               <tr key={item.id}>
                 <td>
-                  <button
+                  <AriaButton
                     type="button"
-                    onClick={() => onOpen(item)}
+                    onPress={() => onOpen(item)}
                     aria-label={itemAccessibleLabel(item)}
                   >
                     {item.title}
                     <span>{item.site}</span>
-                  </button>
+                  </AriaButton>
                 </td>
                 <td><TypeLabel item={item} /></td>
                 <td>{item.collection}</td>
@@ -336,7 +336,7 @@ function TableView({ items, onOpen }: ArchiveItemsProps) {
             );
           })}
         </tbody>
-      </table>
+      </Table>
     </div>
   );
 }
@@ -413,9 +413,9 @@ export function ProductStatus({ item }: { item: ArchiveItem }) {
   if (!status) return null;
   const reached = status === "Target reached";
   return (
-    <span className={reached ? "target-reached" : "target-watching"}>
+    <Chip variant="caption" color={reached ? "lime" : "soft"} className="product-status">
       <Bell aria-hidden />
       {status}
-    </span>
+    </Chip>
   );
 }

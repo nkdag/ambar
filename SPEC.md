@@ -32,6 +32,12 @@ A responsive single-device personal archive whose quick saves and product target
 14. The same normalized URL—ignoring fragments, common tracking parameters, query ordering, default ports, and trailing slashes—is not added twice.
 15. Storage write failures leave the in-memory session usable and expose an honest local-save warning.
 16. Lint, typecheck/tests, and production build pass; browser QA exercises example → save → reload → recover at 1440, 834, and 390 widths.
+17. Privacy and Terms are reachable from application navigation and describe the actual local-only data behavior without implying cookies, analytics, accounts, or cloud sync.
+18. The static export includes canonical title/description metadata, Open Graph and Twitter preview metadata, branded favicon/PWA images, a web manifest, `robots.txt`, `sitemap.xml`, and a custom 404 page.
+19. Internal links resolve in both local static-server and GitHub Pages `/ambar` builds; both outputs pass the launch verifier.
+20. Launch verification scans generated text assets for secret-like credential values and enforces a 500 KB gzip first-load budget.
+21. GitHub Pages must redirect HTTP to HTTPS. A client-side redirect is not a substitute for host-level enforcement.
+22. Cookie consent, analytics, and spam protection remain absent while AMBAR has no cookies, tracking, or backend-submitted public forms; adding any such capability requires revisiting this contract.
 
 ## Out of scope
 Real fetching, Chrome import writes, real auth/cloud sync, external APIs, notifications, scraping, MCP server, CLI publication.
