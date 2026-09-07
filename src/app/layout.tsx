@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { Fraunces, Inter, JetBrains_Mono } from "next/font/google";
+import { Inter, JetBrains_Mono } from "next/font/google";
+import { siteMetadata } from "@/lib/site-metadata";
 import "./globals.css";
 
 const inter = Inter({
@@ -7,20 +8,12 @@ const inter = Inter({
   subsets: ["latin"],
 });
 
-const fraunces = Fraunces({
-  variable: "--font-fraunces",
-  subsets: ["latin"],
-});
-
 const jetbrains = JetBrains_Mono({
-  variable: "--font-jetbrains",
+  variable: "--font-mono-source",
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "AMBAR — Personal archive",
-  description: "A calm local prototype for links, reading, and product prices.",
-};
+export const metadata: Metadata = siteMetadata;
 
 export default function RootLayout({
   children,
@@ -28,7 +21,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${fraunces.variable} ${jetbrains.variable} h-full antialiased`}
+      className={`${inter.variable} ${jetbrains.variable} h-full antialiased`}
     >
       <body>{children}</body>
     </html>

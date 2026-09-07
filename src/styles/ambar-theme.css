@@ -1,0 +1,58 @@
+/* AMBAR's approved accent within BoardUI's semantic system. Upstream files stay intact. */
+@theme {
+  --color-accent-50: var(--color-amber-50);
+  --color-accent-100: var(--color-amber-100);
+  --color-accent-200: var(--color-amber-200);
+  --color-accent-300: var(--color-amber-300);
+  --color-accent-400: var(--color-amber-400);
+  --color-accent-500: var(--color-amber-500);
+  --color-accent-600: var(--color-amber-600);
+  --color-accent-700: var(--color-amber-700);
+  --color-accent-800: var(--color-amber-800);
+  --color-accent-900: var(--color-amber-900);
+  --color-accent-950: var(--color-amber-950);
+}
+:root, .dark {
+  /* Darker CTA stops keep white 14px labels legible in every pointer state. */
+  --gradient-button-primary-default: linear-gradient(180deg, var(--color-accent-700), var(--color-accent-800));
+  --gradient-button-primary-hover: linear-gradient(180deg, var(--color-accent-800), var(--color-accent-900));
+  --gradient-button-primary-active: linear-gradient(180deg, var(--color-accent-900), var(--color-accent-950));
+  --color-archive-overlay: rgb(0 0 0 / 0.4);
+}
+:root {
+  /* BoardUI tertiary text is reserved for decoration; metadata needs AA contrast. */
+  --color-text-secondary: var(--color-neutral-600);
+}
+.dark {
+  --color-text-secondary: var(--color-neutral-400);
+  --color-archive-overlay: rgb(0 0 0 / 0.65);
+}
+
+/* Verified against rendered price/import states, rather than palette appearance. */
+:root {
+  --color-button-ghost-foreground: var(--color-accent-800);
+  --color-text-error-primary: var(--color-red-700);
+  --color-border-focus-ring: var(--color-accent-700);
+  --color-chart-1: var(--color-teal-700);
+}
+.dark {
+  --color-status-rose-text: var(--color-rose-300);
+  --color-text-error-primary: var(--color-red-400);
+  --color-border-focus-ring: var(--color-accent-400);
+  --color-button-ghost-foreground: var(--color-accent-200);
+  --color-chart-1: var(--color-teal-400);
+}
+
+/* Control Room chart palette: price, activity, and target reference. */
+:root {
+  --color-chart-2: var(--color-teal-500);
+  --color-chart-2-active: var(--color-teal-700);
+  --color-chart-9-active: var(--color-blue-600);
+  --color-chart-target: var(--color-amber-700);
+}
+.dark {
+  --color-chart-2: var(--color-teal-400);
+  --color-chart-2-active: var(--color-teal-400);
+  --color-chart-9-active: var(--color-blue-400);
+  --color-chart-target: var(--color-amber-400);
+}

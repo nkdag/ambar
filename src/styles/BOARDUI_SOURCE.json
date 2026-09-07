@@ -1,0 +1,167 @@
+{
+  "license": "MIT",
+  "reference": "../_spikes/boardui-free-pilot",
+  "files": [
+    {
+      "source": "utils/cx.ts",
+      "sha256": "db35ea5afa8b2e0fd51319bc49288c4df7c98ec53440b43903636a32e3319d9d",
+      "installed_sha256": "db35ea5afa8b2e0fd51319bc49288c4df7c98ec53440b43903636a32e3319d9d",
+      "adaptation": "Exact copy; no changes."
+    },
+    {
+      "source": "utils/use-dismiss-on-outside-press.ts",
+      "sha256": "01c70c3b25018e9c8d1d6d84ca67facb9392b5d4baf1c7207bbcfe13d4b33699",
+      "installed_sha256": "01c70c3b25018e9c8d1d6d84ca67facb9392b5d4baf1c7207bbcfe13d4b33699",
+      "adaptation": "Exact copy; no changes."
+    },
+    {
+      "source": "styles/theme.css",
+      "sha256": "5bd8672ec024818f535cbb6dfbe7296747ab57b3c7fda311a053523452860171",
+      "installed_sha256": "5bd8672ec024818f535cbb6dfbe7296747ab57b3c7fda311a053523452860171",
+      "adaptation": "Exact copy; no changes."
+    },
+    {
+      "source": "styles/typography.css",
+      "sha256": "dfd4e9b446998d063efe96a47fc31fd2492639bf641d0da1b60645fe4dcc32a1",
+      "installed_sha256": "dfd4e9b446998d063efe96a47fc31fd2492639bf641d0da1b60645fe4dcc32a1",
+      "adaptation": "Exact copy; no changes."
+    },
+    {
+      "source": "components/foundations/icons/chevrons.tsx",
+      "sha256": "daa432c30cf80fbfef15f929a2b7ca459c007f5611785286937528d4b7565b97",
+      "installed_sha256": "daa432c30cf80fbfef15f929a2b7ca459c007f5611785286937528d4b7565b97",
+      "adaptation": "Exact copy; no changes."
+    },
+    {
+      "source": "components/base/buttons/button.tsx",
+      "sha256": "a49800d5cc58a9f8a98c07a7251e5923904b483b2f3e6e63e4fa0797acff101d",
+      "installed_sha256": "a49800d5cc58a9f8a98c07a7251e5923904b483b2f3e6e63e4fa0797acff101d",
+      "adaptation": "Exact copy; no changes."
+    },
+    {
+      "source": "components/base/buttons/icon-button.tsx",
+      "sha256": "6b67368aadfe2f0e9c409f29ad118dfab52b227741a97e59e67c6e381cfc77c7",
+      "installed_sha256": "6b67368aadfe2f0e9c409f29ad118dfab52b227741a97e59e67c6e381cfc77c7",
+      "adaptation": "Exact copy; no changes."
+    },
+    {
+      "source": "components/base/buttons/close-button.tsx",
+      "sha256": "0cfe4372b4990726e0819095f690506d5d6b1ceabbc8319c7dab12e3ee524f06",
+      "installed_sha256": "0cfe4372b4990726e0819095f690506d5d6b1ceabbc8319c7dab12e3ee524f06",
+      "adaptation": "Exact copy; no changes."
+    },
+    {
+      "source": "components/base/input/input.tsx",
+      "sha256": "b1d12e4a696ca691daf8f6cb5e682af11c45e7916e00e8500c8b277a573d6f58",
+      "installed_sha256": "67ea9a7d2c60f679ebcfacee1d8f708aef780f351047992342894448fdd3e977",
+      "adaptation": "Preserve explicit accessible names and deterministic IDs; semantic secondary placeholder and focus-ring tokens retain focus on invalid fields. Stable shell hook supports 44px actual input targets on compact screens."
+    },
+    {
+      "source": "components/base/input/label.tsx",
+      "sha256": "a053bec8ad9f79f15ad8d7f031eac740588781d4e1b34d1cb1b3c5d44a4b2199",
+      "installed_sha256": "a053bec8ad9f79f15ad8d7f031eac740588781d4e1b34d1cb1b3c5d44a4b2199",
+      "adaptation": "Exact copy; no changes."
+    },
+    {
+      "source": "components/base/input/hint-text.tsx",
+      "sha256": "0426d70de74274486166cf3fd2279b8c70ce184012d613f87c44dbaa484ba8c3",
+      "installed_sha256": "0426d70de74274486166cf3fd2279b8c70ce184012d613f87c44dbaa484ba8c3",
+      "adaptation": "Exact copy; no changes."
+    },
+    {
+      "source": "components/base/select/select.tsx",
+      "sha256": "c56abf0ad7b554a363a6e2b46045489b6a94c18718324cbf06e64edf0540b116",
+      "installed_sha256": "3b524d32a99b3b8a426cdd5a30e4717d3f3461b58c79b2feff29f3879809af3a",
+      "adaptation": "Name the trigger from its external label or explicit aria-label and describe it with the selected value; preserve existing Link input queries and clear preview control names."
+    },
+    {
+      "source": "components/base/dropdown/menu-styles.ts",
+      "sha256": "95c1dd4c81cb48560ba206012314b2ca9a3742bee2d6c38b26548b6b893219b1",
+      "installed_sha256": "95c1dd4c81cb48560ba206012314b2ca9a3742bee2d6c38b26548b6b893219b1",
+      "adaptation": "Exact copy; no changes."
+    },
+    {
+      "source": "components/base/segmented-control/segmented-control.tsx",
+      "sha256": "9f12eaf790a646a1fe422b35a1a26492146563d031cd5627ca00cbabac4cdb3f",
+      "installed_sha256": "9f12eaf790a646a1fe422b35a1a26492146563d031cd5627ca00cbabac4cdb3f",
+      "adaptation": "Exact copy; no changes."
+    },
+    {
+      "source": "components/base/switch/switch.tsx",
+      "sha256": "4b853b8886c471f482e3b2c5a4a6c6436ab30f7d6122f43f571f94d10f5d6c22",
+      "installed_sha256": "4b853b8886c471f482e3b2c5a4a6c6436ab30f7d6122f43f571f94d10f5d6c22",
+      "adaptation": "Exact copy; no changes."
+    },
+    {
+      "source": "components/base/badges/badge.tsx",
+      "sha256": "0e347cff23823096035bc03b0fa3239d5cfb9a101cdc434b1c6c3bfbd503f7d1",
+      "installed_sha256": "0e347cff23823096035bc03b0fa3239d5cfb9a101cdc434b1c6c3bfbd503f7d1",
+      "adaptation": "Exact copy; no changes."
+    },
+    {
+      "source": "components/base/badges/chip.tsx",
+      "sha256": "dd31f5ed329ecf176fcecbad11c1b32cdd31710f6290e7ac6a4e25a2fa25c4b4",
+      "installed_sha256": "dd31f5ed329ecf176fcecbad11c1b32cdd31710f6290e7ac6a4e25a2fa25c4b4",
+      "adaptation": "Exact copy; no changes."
+    },
+    {
+      "source": "components/base/badges/status-dot.tsx",
+      "sha256": "b69fd06d17c2dcb522e906bdedadbd7d058f06d60242ee4e879de393b1ec7871",
+      "installed_sha256": "b69fd06d17c2dcb522e906bdedadbd7d058f06d60242ee4e879de393b1ec7871",
+      "adaptation": "Exact copy; no changes."
+    },
+    {
+      "source": "components/base/tooltip/tooltip.tsx",
+      "sha256": "eff98b8177aab4449c87654743d42d2a4f398377b0f559709c64849fe079588c",
+      "installed_sha256": "eff98b8177aab4449c87654743d42d2a4f398377b0f559709c64849fe079588c",
+      "adaptation": "Exact copy; no changes."
+    },
+    {
+      "source": "components/base/table/table.tsx",
+      "sha256": "f960c50c679e3473328fb7e1c9c35f746a65c73011248c827274c1433a482419",
+      "installed_sha256": "66ded44e0ad23fc4827b5f4be338b278702229666c1fb60d1355d4a89f5252e2",
+      "adaptation": "Retain BoardUI table surface on native semantic table with existing caption/cell-button actions; no selectable grid."
+    },
+    {
+      "source": "components/base/notification/notification.tsx",
+      "sha256": "c309bb137803d1ebab638a9e84dd8947a2ac4d2a41738319b85125bb60d39926",
+      "installed_sha256": "0a215babfd680cf2d6a793942f7c56701124109e52c772e485c226c95489cfdf",
+      "adaptation": "Narrow to existing success/error feedback, 4200ms lifetime and caller ownership; remove unused avatar/action/Motion code and mark as a modal-accessible top layer."
+    },
+    {
+      "source": "components/application/dashboard/stat-cards.tsx",
+      "sha256": "94af733a6cd758a464e5312a3c0c9bc25328572afc6b9c8b9825e2b33d77e83a",
+      "installed_sha256": "c4037ce11c6f57f092b30442feb38ba0315f95ecf36b852121d177caa366b4d9",
+      "adaptation": "Copied free StatCards; plain variant uses semantic icon tones and display typography. Overview always supplies computed archive statistics. Footer/default demo variants are unused. Optional numericValue uses the MIT Motion Primitives derived AnimatedNumber for archive counts; other stat content is unchanged."
+    },
+    {
+      "source": "components/application/dashboard/revenue-chart-card.tsx",
+      "sha256": "060bee7d6484cfa36d07796c7aa62ffbe1fbb62850a6cc0f4094866f3592279e",
+      "installed_sha256": "85096030993d300d78c7c348a3eb5d775a8cced93b77c5100c41ac0ca65c3dde",
+      "adaptation": "Copied free area/line chart recipe, adapted to sequential price cents and optional target. Removed demo revenue data, year labels and count-up hook. Added product-driven headline, zero-baseline handling, keyboard range, text alternative and data table. Recharts animations disabled."
+    },
+    {
+      "source": "components/application/dashboard/orders-chart-card.tsx",
+      "sha256": "38f48d0d5d02785210d1926659670a6d4d1ca94fe949126614677bf31225ddc4",
+      "installed_sha256": "b6642bf928b0d78aefe2674fce2f9ce0df28666884bde5665e66f08f15feb968",
+      "adaptation": "Copied free bar-card recipe, adapted to actual UTC save counts for 7/14 days ending at latest save. Removed demo orders, prior-year comparison and count-up hook. Added range segments, text alternative and data table; Recharts animations disabled."
+    },
+    {
+      "source": "components/application/medical/important-alerts-card.tsx",
+      "sha256": "6188dba847d14c8d73f2a19b20b5120958ed1f4b4c13d4c66c460a6df14a11bb",
+      "installed_sha256": "8573fc5d01450e9c2c0f9598ec92bae8c57700451485810119784f22405094ac",
+      "adaptation": "Copied free inset alert tile recipe, adapted to product watch state and detail actions. Removed medical fixtures, arbitrary count, WeekRangePill, fixed clipping and scroll fade. Semantic icon/status colors, natural wrapping and complete rows."
+    }
+  ],
+  "pattern_adaptations": {
+    "src/components/application/archive-navigation.tsx": "BoardUI free sidebar spacing, shape and semantic surfaces; AMBAR Overview, computed collection navigation and persistent mobile destinations.",
+    "src/components/application/archive-overlays.tsx": "BoardUI panel and selection recipes composed with React Aria Modal/Dialog/Tabs.",
+    "src/app/globals.css": "AMBAR layouts using BoardUI tokens and type utilities; native table styling derives from reference globals.css bui-table section.",
+    "src/components/application/archive-overview.tsx": "AMBAR-owned Control Room composition of the copied free cards and existing BoardUI primitives; all displayed numbers derived from current archive records.",
+    "src/styles/overview.css": "AMBAR-owned responsive layouts and CSS interactions, using BoardUI semantic tokens and composite typography."
+  },
+  "upstream": {
+    "repository": "https://github.com/BoardUI/boardui",
+    "commit": "3e76e282614b147a34b9b2a510e31b97d58a3909"
+  }
+}
